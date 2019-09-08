@@ -1,0 +1,5 @@
+prosv5 make clean 
+prosv5 make 
+prosv5 upload --run-after
+prosv5 terminal
+prosv5 c u  (upgrade project to latest kernel)
