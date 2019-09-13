@@ -43,15 +43,19 @@ $$\begin{cases}
    2L = \text{wheel base difference}
 \end{cases} $$
 
-<center><img src="./media/img2.png" width="300"> <img src="./media/img3.png" width="384"></center>
+<img src="./media/img2.png" width="300"> <img src="./media/img3.png" width="384">
 
 $$\Delta x = \Delta scos\left( \theta + \Delta\theta/2 \right)$$ <br>
 
-`(Change in Abs. X)`
+$$\text{(Change in Abs. X)}$$ <br>
+
+<br>
 
 $$\Delta y = \Delta ssin\left( \theta + \Delta\theta/2 \right)$$ <br>
 
-`(Change in Abs. X)`
+$$\text{(Change in Abs. X)}$$
+
+<br>
 
 $$p' = f(x,y,\theta,\Delta s_r, \Delta s_l) = \begin{bmatrix} x \\ y \\ \theta \end{bmatrix} + \begin{bmatrix} \Delta s*cos(\theta + .5*\Delta\theta \\ \Delta s*sin(\theta + .5*\Delta\theta \\ \Delta\theta \end{bmatrix}$$
 $$(Position-Change)$$
