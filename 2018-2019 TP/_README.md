@@ -23,13 +23,25 @@ Odometry telemetry: $u = \left\langle x, y, \theta \right\rangle$ (absolute at t
 
 ### Modeling Motion
 $$\Delta s = \frac{\Delta s_r + \Delta s_l}{2} $$ 
->$\Delta s_r$ = right wheel base delta <br>
->$\Delta s_l$ = left wheel base delta
+
+<br>
+
+$$\begin{cases}
+   \Delta s_r = \text{right wheel base delta} \\
+   \Delta s_l = \text{left wheel base delta}
+\end{cases} $$
+
+<br>
 
 $$\Delta \theta = \frac{(\Delta s_r - \Delta s_l)}{2L} $$ 
->$\Delta s_r$ = right wheel base delta <br>
->$\Delta s_l$ = left wheel base delta <br>
->$2L$ = wheel base difference
+
+<br>
+
+$$\begin{cases}
+   \Delta s_r = \text{right wheel base delta} \\
+   \Delta s_l = \text{left wheel base delta} \\
+   2L = \text{wheel base difference}
+\end{cases} $$
 
 <center><img src="./media/img2.png" width="300"> <img src="./media/img3.png" width="384"></center>
 
@@ -44,12 +56,16 @@ $$(Position-Change)$$
 ## Interactive Feedback PID Loops
 Interactivity depends on derivative constant $K_d$ as well as the dependence between proportional, integral and derivative modes. Parallel (non-interactive) controllers, are mostly unused. PID controllers are given by the alg.: 
 
-$$U(t) = K\left ( e(t) + (\frac{1}{T_i} \int_{0}^{t}e(\alpha)) + K_d(s) \right )$$
-> $U(t)$ = controller output <br>
-> $E$ = target - input for time t <br>
-> $K_p$ = K <br>
-> $K_i = \frac{K}{T_i}$ <br>
-> $K_d = KT_d$ 
+$$U(t) = K\left ( e(t) + (\frac{1}{T_i} \int_{0}^{t}e(\alpha)) + K_d(s) \right )$$ 
+<br>
+
+$$\begin{cases}
+   U(t)=\text{controller output} \\
+   E = \text{target} - \text{input for time } t \\
+   K_p = K\\
+   K_i = \frac{K}{T_i} \\
+   K_d = KT_d
+\end{cases} $$
 
 ### **PIDF**: PID under a closed loop feedback control. Uses basic concept of setpoint, error, and target to generate clamped output, applied to system to reach target. 
 - Error `e` multipled by proportional constant `K_p`, rendering output proportional to error
@@ -174,9 +190,12 @@ $$y_i \rightarrow y_i + \beta(y_{i+1} + y_{i-1} - 2y_i)$$ (2)
 <center>Gradient with respect to neighboring, smoothed trajectory coordinates</center>
 
 <!-- <center><img src="svgs/cff38cf230d636154e13fcf1f9fef39a.svg?invert_in_darkmode" align=middle width=218.145939pt height=16.438356pt/></p> </center> (2) -->
+<br>
 
-$\alpha$ = smoothing optimization parameter <br>
-$\beta$ = weight (emphasis) smoothing parameter
+$$\begin{cases}
+   \alpha = \text{smoothing optimization parameter} \\
+   \beta = \text{weight (emphasis) smoothing parameter}
+\end{cases} $$
 
 ```python
 """ path: set of path coords.
@@ -211,10 +230,13 @@ return newP
 ### Lookahead Point
 Point `P` separated by a `lookahead distance` from the current position. This point is determined by taking a circle with radius `lookout distance` and computing the intersection of the path and the circle `(line segment collision detection on circles)`. 
 
-$$I_p = E + \tau * d$$
-$E$ = starting point <br>
-$\tau$ = intersection along ray of path <br>
-$d$ = vector representing ray of path (line segment)
+
+$$\begin{cases}
+   I_p = E + \tau * d \\
+   E = \text{starting point} \\
+   \tau = \text{intersection along ray of path} \\
+   d = \text{vector representing ray of path (line segment)}
+\end{cases} $$
 
 <br>
 
