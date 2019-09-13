@@ -22,26 +22,32 @@ Movement from: <img src="svgs/b0abba107ce2fbdfb33d6bdade88770c.gif?invert_in_dar
 Odometry telemetry: <img src="svgs/9117cefc58ccce8de8d98cc3ed3e81db.gif?invert_in_darkmode" align=middle width=84.9428217pt height=24.65753399999998pt/> (absolute at time <img src="svgs/4f4f4e395762a3af4575de74c019ebb5.gif?invert_in_darkmode" align=middle width=5.936097749999991pt height=20.221802699999984pt/>)
 
 ### Modeling Motion
-<center><img src="svgs/68ff04b336caad98348dff366d388624.gif?invert_in_darkmode" align=middle width=120.51887264999999pt height=33.62942055pt/></p> </center>
+<p align="center"><img src="svgs/68ff04b336caad98348dff366d388624.gif?invert_in_darkmode" align=middle width=120.51887264999999pt height=33.62942055pt/></p> 
 
 <br>
 
-<img src="svgs/ca8b8db165bd910a0b255999546ccc25.gif?invert_in_darkmode" align=middle width=221.51480339999998pt height=49.315569599999996pt/></p>
+<p align="center"><img src="svgs/ca8b8db165bd910a0b255999546ccc25.gif?invert_in_darkmode" align=middle width=221.51480339999998pt height=49.315569599999996pt/></p>
 
 <br>
 
-<center><img src="svgs/aa1c9e9f33b14a857f833028a96df7f6.gif?invert_in_darkmode" align=middle width=133.77235905pt height=34.7253258pt/></p> 
+<p align="center"><img src="svgs/aa1c9e9f33b14a857f833028a96df7f6.gif?invert_in_darkmode" align=middle width=133.77235905pt height=34.7253258pt/></p> 
 
 <br>
 
-<img src="svgs/9f925880645d55342c7ecf25991112dc.gif?invert_in_darkmode" align=middle width=222.88463339999998pt height=69.0417981pt/></p></center>
+<p align="center"><img src="svgs/9f925880645d55342c7ecf25991112dc.gif?invert_in_darkmode" align=middle width=222.88463339999998pt height=69.0417981pt/></p>
 
 <center><img src="./media/img2.png" width="300"> <img src="./media/img3.png" width="384"></center>
 
-<center><img src="svgs/1af53c69bdd55402a7c86eab81b0bb2e.gif?invert_in_darkmode" align=middle width=171.30320129999998pt height=16.438356pt/></p> </center><br>
-<center><img src="svgs/8bdd5bc05c4b563d0287f3668d10c30e.gif?invert_in_darkmode" align=middle width=171.00566834999998pt height=16.438356pt/></p> </center><br>
-<center><img src="svgs/440e767aa26710959ed21ef3ece2f4e2.gif?invert_in_darkmode" align=middle width=408.2217282pt height=59.1786591pt/></p></center>
-<center><img src="svgs/e13556822bb81c69fa2d9c2473794f17.gif?invert_in_darkmode" align=middle width=153.5206827pt height=16.438356pt/></center></p>
+<p align="center"><img src="svgs/1af53c69bdd55402a7c86eab81b0bb2e.gif?invert_in_darkmode" align=middle width=171.30320129999998pt height=16.438356pt/></p> <br>
+
+`(Change in Abs. X)`
+
+<p align="center"><img src="svgs/8bdd5bc05c4b563d0287f3668d10c30e.gif?invert_in_darkmode" align=middle width=171.00566834999998pt height=16.438356pt/></p> <br>
+
+`(Change in Abs. X)`
+
+<p align="center"><img src="svgs/440e767aa26710959ed21ef3ece2f4e2.gif?invert_in_darkmode" align=middle width=408.2217282pt height=59.1786591pt/></p>
+<p align="center"><img src="svgs/e13556822bb81c69fa2d9c2473794f17.gif?invert_in_darkmode" align=middle width=153.5206827pt height=16.438356pt/></p>
 
 
 ---
@@ -49,10 +55,10 @@ Odometry telemetry: <img src="svgs/9117cefc58ccce8de8d98cc3ed3e81db.gif?invert_i
 ## Interactive Feedback PID Loops
 Interactivity depends on derivative constant <img src="svgs/c4dd4df1478960c5f0d78f517ad773e5.gif?invert_in_darkmode" align=middle width=20.804288999999986pt height=22.465723500000017pt/> as well as the dependence between proportional, integral and derivative modes. Parallel (non-interactive) controllers, are mostly unused. PID controllers are given by the alg.: 
 
-<center><img src="svgs/acd9a664591bf03c3e7c0178c1f8c1df.gif?invert_in_darkmode" align=middle width=294.93900314999996pt height=41.004999749999996pt/></center>
+<p align="center"><img src="svgs/acd9a664591bf03c3e7c0178c1f8c1df.gif?invert_in_darkmode" align=middle width=294.93900314999996pt height=41.004999749999996pt/></p> 
 <br>
 
-<img src="svgs/6bb343272fe5c4d583f87758cdd926b7.gif?invert_in_darkmode" align=middle width=225.0457011pt height=118.35736770000001pt/></p>
+<p align="center"><img src="svgs/6bb343272fe5c4d583f87758cdd926b7.gif?invert_in_darkmode" align=middle width=225.0457011pt height=118.35736770000001pt/></p>
 
 ### **PIDF**: PID under a closed loop feedback control. Uses basic concept of setpoint, error, and target to generate clamped output, applied to system to reach target. 
 - Error `e` multipled by proportional constant `K_p`, rendering output proportional to error
@@ -106,7 +112,7 @@ For feedback controllers:
 > `Most systems, particularly subsystems of systems, do not need I or D depending on the movement and relationship between target and current state`
 
 > ### Behaviorial effects of **increasing** K<sub>p</sub>, K<sub>i</sub>, K<sub>d</sub>, on general equation of interactive PID
-<center><img src="svgs/9d619e79f11f2d061a3213f909ac606f.gif?invert_in_darkmode" align=middle width=335.8670469pt height=39.452455349999994pt/></p></center><br>
+<p align="center"><img src="svgs/9d619e79f11f2d061a3213f909ac606f.gif?invert_in_darkmode" align=middle width=335.8670469pt height=39.452455349999994pt/></p><br>
 <span style="color:gray">*Effect on U(s) behavior*</span> 
 
 | Response  | Rise Time | Overshoot  | Settling Time | S-S Error |
@@ -124,9 +130,9 @@ For feedback controllers:
 Pursuit comes in two different forms: adaptive and pure pursuit. "Pure" refers to pursuit directed purely on the basis of lookahead. However, "adaptive" pursuit modifies the look-ahead point over larger distances e.g. proportionally scaling lookahead with tracking error<br>
 > Debately the best method of autonomous control (competitive scenarios) beacuse of overall reliability, accuracy, and abililty to alter paths on the fly
 - Pure Pursuit formed from P controller using heading as setpoint and current heading as input. The goal point is derived from a fixed lookahead distance. 
-   * `proportional gain` normalized by fixed lookahead distance `L`. *The curvature of movement comes from PI on heading rather than distance* => $\psi_{err}/L$ determines the average curvature `C` on the path
+   * `proportional gain` normalized by fixed lookahead distance `L`. *The curvature of movement comes from PI on heading rather than distance* : <img src="./media/eq1.gif?invert_in_darkmode"> determines the average curvature `C` on the path
    * A limiter is used to clamp (limit) curvature at high-speeds to prevent unwanted deviation from the path. This takes on the effect of cutting curve lines if implemented incorrectly. One method of limitation is regulating the angular velocity ω on sharp curves | often a threshold is placed on the entire path because of inability to track ω at high speeds
-      * $clamp(input - input_{prev}, \pm MAX\_CHANGE)$
+      - <img src="./media/eq2.gif?invert_in_darkmode">
    * Errors caused by too short or too long of `L` result in overall instability | solved with feedforward controllers (PIDFs)<br>
 
 > **Warning**: Increasing lookahead distance on unsmooth curves will cause corner-cutting
@@ -170,16 +176,16 @@ for segment in path:
 Smoothing can be achieved through several methods. Most common is through an optimization of points by returning a set of points that create a smooth trajectory. <br>
 **The following algorithm uses gradient descent with a low tolerance:** <br>
 
-<center><img src="svgs/44db4483891f4353404b2fffac602336.gif?invert_in_darkmode" align=middle width=144.5793822pt height=16.438356pt/></p> (1) </center>
+<p align="center"><img src="svgs/44db4483891f4353404b2fffac602336.gif?invert_in_darkmode" align=middle width=144.5793822pt height=16.438356pt/></p> (1)
 <center>Gradient using coordinates from un-smoothed trajectory</center> <br>
 
-<center><img src="svgs/cff38cf230d636154e13fcf1f9fef39a.gif?invert_in_darkmode" align=middle width=218.145939pt height=16.438356pt/></p> (2) </center>
+<p align="center"><img src="svgs/cff38cf230d636154e13fcf1f9fef39a.gif?invert_in_darkmode" align=middle width=218.145939pt height=16.438356pt/></p> (2)
 <center>Gradient with respect to neighboring, smoothed trajectory coordinates</center>
 
 <!-- <center><img src="svgs/cff38cf230d636154e13fcf1f9fef39a.gif?invert_in_darkmode" align=middle width=218.145939pt height=16.438356pt/></p> </center> (2) -->
 <br>
 
-<img src="svgs/2cba1ef8b323afd1e214c5dd574f834f.gif?invert_in_darkmode" align=middle width=333.81921704999996pt height=49.315569599999996pt/></p>
+<p align="center"><img src="svgs/2cba1ef8b323afd1e214c5dd574f834f.gif?invert_in_darkmode" align=middle width=333.81921704999996pt height=49.315569599999996pt/></p>
 
 ```python
 """ path: set of path coords.
@@ -206,6 +212,7 @@ return newP
 ```
 
 **Alternatives e.g. 5<sup>th</sup>-degree splines work for this approximation :**
+
 <center><img width="250" src="./media/imgSpline5.png"></center>
 
 ### Closest Point
@@ -214,8 +221,11 @@ return newP
 ### Lookahead Point
 Point `P` separated by a `lookahead distance` from the current position. This point is determined by taking a circle with radius `lookout distance` and computing the intersection of the path and the circle `(line segment collision detection on circles)`. 
 
+<p align="center"><img src="svgs/0c6cb1b5821721b71d1b044c7ed5c1e0.gif?invert_in_darkmode" align=middle width=103.04318805pt height=16.1187015pt/></p>
 
-<img src="svgs/d8681aba008e16848c5bf13cd131f19c.gif?invert_in_darkmode" align=middle width=374.67543629999994pt height=88.76802659999998pt/></p>
+<br>
+
+<p align="center"><img src="svgs/05c7c7860ce576ce1b2cf15cbc523d45.gif?invert_in_darkmode" align=middle width=374.67543629999994pt height=69.0417981pt/></p>
 
 <br>
 
@@ -235,6 +245,9 @@ https://journals.sagepub.com/doi/full/10.5772/61391 -->
 ---
 ## Motion Profiling
 <!-- Motion profiling is similar to path pursuit, however  -->
+...
+
+---
 
 # Final Notes
 In a single system the previous implementations can be implemented in the following way: <br>

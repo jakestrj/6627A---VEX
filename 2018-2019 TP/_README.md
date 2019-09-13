@@ -46,7 +46,13 @@ $$\begin{cases}
 <center><img src="./media/img2.png" width="300"> <img src="./media/img3.png" width="384"></center>
 
 $$\Delta x = \Delta scos\left( \theta + \Delta\theta/2 \right)$$ <br>
+
+`(Change in Abs. X)`
+
 $$\Delta y = \Delta ssin\left( \theta + \Delta\theta/2 \right)$$ <br>
+
+`(Change in Abs. X)`
+
 $$p' = f(x,y,\theta,\Delta s_r, \Delta s_l) = \begin{bmatrix} x \\ y \\ \theta \end{bmatrix} + \begin{bmatrix} \Delta s*cos(\theta + .5*\Delta\theta \\ \Delta s*sin(\theta + .5*\Delta\theta \\ \Delta\theta \end{bmatrix}$$
 $$(Position-Change)$$
 
@@ -137,9 +143,9 @@ $$U(s) = G_{pid}(s)E(s) = \left ( K_p + K_i (\frac{1}{s}) + K_d(s) \right )$$<br
 Pursuit comes in two different forms: adaptive and pure pursuit. "Pure" refers to pursuit directed purely on the basis of lookahead. However, "adaptive" pursuit modifies the look-ahead point over larger distances e.g. proportionally scaling lookahead with tracking error<br>
 > Debately the best method of autonomous control (competitive scenarios) beacuse of overall reliability, accuracy, and abililty to alter paths on the fly
 - Pure Pursuit formed from P controller using heading as setpoint and current heading as input. The goal point is derived from a fixed lookahead distance. 
-   * `proportional gain` normalized by fixed lookahead distance `L`. *The curvature of movement comes from PI on heading rather than distance* => $\psi_{err}/L$ determines the average curvature `C` on the path
+   * `proportional gain` normalized by fixed lookahead distance `L`. *The curvature of movement comes from PI on heading rather than distance* : <img src="./media/eq1.gif?invert_in_darkmode"> determines the average curvature `C` on the path
    * A limiter is used to clamp (limit) curvature at high-speeds to prevent unwanted deviation from the path. This takes on the effect of cutting curve lines if implemented incorrectly. One method of limitation is regulating the angular velocity ω on sharp curves | often a threshold is placed on the entire path because of inability to track ω at high speeds
-      * $clamp(input - input_{prev}, \pm MAX\_CHANGE)$
+      - <img src="./media/eq2.gif?invert_in_darkmode">
    * Errors caused by too short or too long of `L` result in overall instability | solved with feedforward controllers (PIDFs)<br>
 
 > **Warning**: Increasing lookahead distance on unsmooth curves will cause corner-cutting
@@ -222,6 +228,7 @@ return newP
 ```
 
 **Alternatives e.g. 5<sup>th</sup>-degree splines work for this approximation :**
+
 <center><img width="250" src="./media/imgSpline5.png"></center>
 
 ### Closest Point
@@ -230,9 +237,11 @@ return newP
 ### Lookahead Point
 Point `P` separated by a `lookahead distance` from the current position. This point is determined by taking a circle with radius `lookout distance` and computing the intersection of the path and the circle `(line segment collision detection on circles)`. 
 
+$$I_p = E + \tau * d$$
+
+<br>
 
 $$\begin{cases}
-   I_p = E + \tau * d \\
    E = \text{starting point} \\
    \tau = \text{intersection along ray of path} \\
    d = \text{vector representing ray of path (line segment)}
