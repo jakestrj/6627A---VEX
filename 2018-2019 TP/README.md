@@ -150,7 +150,7 @@ Pursuit comes in two different forms: adaptive and pure pursuit. "Pure" refers t
    * Using the `monotone arc length assumption`, efficiency can be increased by not having to search the entire length of the path for a lookahead, but rather using a local heading
    * Lookahead distance is adaptive / proportional to current tracking error
 
-<center><img width="375" src="./media/img4.png"></center>
+<center><img width="375" src="./media/img4.PNG"></center>
 
 **Figure 1.2** Adaptive Lookahead, advanced off-path correction
 
@@ -217,7 +217,7 @@ return newP
 
 **Alternatives e.g. 5<sup>th</sup>-degree splines work for this approximation :**
 
-<center><img width="250" src="./media/imgSpline5.png"></center>
+<center><img width="250" src="./media/imgSpline5.PNG"></center>
 
 ### Closest Point
 `Trivial` distance calculation, start at lowest index such that following closest points are sequential
