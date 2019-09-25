@@ -1,4 +1,4 @@
-Motion Profiling, Tracking via Odometry Theory on Fixed-Differential Systems
+Motion Profiling, Tracking, and Pursuit via Odometry Theory on Differential Systems
 ====================================================================
 ## Application in Robotics 
 ---
@@ -22,7 +22,9 @@ Movement from: $\left \langle \bar{x}, \bar{y}, \bar{\theta} \right \rangle to \
 Odometry telemetry: $u = \left\langle x, y, \theta \right\rangle$ (absolute at time $t$)
 
 ### Modeling Motion
-$$\Delta s = \frac{\Delta s_r + \Delta s_l}{2} $$ 
+(1) Change in average radius, in terms of inner and outer radius, is used to calculate change in center of 4 wheel system<br>
+
+$$\Delta s = \frac{\Delta s_r + \Delta s_l}{2} $$  
 
 <br>
 
@@ -32,6 +34,8 @@ $$\begin{cases}
 \end{cases} $$
 
 <br>
+(2) Change in theta moving direction as a function of change in inner radius, represents clear advantage over gyroscopic sensors in taking absolute theta<br>
+
 
 $$\Delta \theta = \frac{(\Delta s_r - \Delta s_l)}{2L} $$ 
 
@@ -44,6 +48,8 @@ $$\begin{cases}
 \end{cases} $$
 
 <img src="./media/img2.png" width="300"> <img src="./media/img3.png" width="384">
+
+These values can be used to create a vector representing absolute position difference (delta x, delta y, delta theta) between last state (assuming non-steady state)
 
 $$\Delta x = \Delta scos\left( \theta + \Delta\theta/2 \right)$$ <br>
 
@@ -260,15 +266,67 @@ $$\begin{cases}
 ### 
 
 
---- 
-## Advanced Techniques in Pursuit 
+<!-- ---  -->
+<!-- ## Advanced Techniques in Pursuit  -->
 <!-- clothoids
 https://journals.sagepub.com/doi/full/10.5772/61391 -->
-...
+<!-- ... -->
 
 ---
 ## Motion Profiling
-<!-- Motion profiling is similar to path pursuit, however  -->
+Motion profiling is similar to the path generation of pursuit algorithms, in that a series of points are given as input, and a smoothed, curved path is computed as output. However, profiling involves returning a path with parameters of acceleration and deceleration passed directly into motion functions. The steps to the this generation are as follows:<br> 
+(1) Generating smoothed curve using techniques as defined in path pursuit <br>
+(2) Calculting position through odometry functions <br>
+(3) Generating acceleration along the curve <br>
+
+### Curve and Path Generation
+Smoothed curves are generated through the fucntional input to cubic bezier curves. Linear interpolation is a common method to determine a common pivot between two points. All adjacent points are interpolated until none remain <br>
+(1) 1D linear interpolation <br>
+
+$$linear(p_1, p_2, \alpha) = \alpha(p_2 - p_1) + p_1$$ <br>
+
+(2) 2D linear interpolation given two points P1, P2<br>
+
+$$x' = linear(P1_x, P2_x, \alpha) \thickspace | \thickspace y' = linear(P1_y, P2_y, \alpha)$$
+
+<br>
+
+<center><img width="300" src="./media/img7.PNG"></center>
+
+**Figure 1.4** Guided cubic Bezier curve between two points
+
+Bezier curves require a combination of interpolation at two end points, and approximation of the inner control points. For larger sets of points, a single curve can not accurately represent a smooth path because of derivative scaling. However, a solution involves splines through `quintic Hermite splines` which alot for multi-segmented curves. At joint points in the spline, a tanget rather than a control point is specified which reliable smoothes those points and maintains first derivative which cubic Beziers are unable to provide. 
+
+### Velocity and Acceleration Profiles
+Given a standard trapezoidal velocity profile, the points given non-standard acceleration are near the start- and end-points. Using two-step PID loops on acceleration, a jerk-proof profile can be achieved which minimizes the third-derivative of position and further smoothes motion. <br>
+Trapezoidal profiles can be represented as simple kinematic equations:<br>
+
+$$x(t) = x_0 + v_0t + \frac{1}{2}at^2$$
+$$v(t) = v_0 + at$$
+
+> Jerk is defined as transitional changes in acceleration, that produce vibrational forces and jolted acceleration. Jerk-reducing profiles are difficult to tune as their deceleration stages must follow the limitations of hardware without significantly increasing settling time or accuracy at slow speeds. Jerk profiles include several more stages than simple trapezoidal profiles: <br>
+(1) linearly increasing accelearation to reach maximum acceleratoin (often guided by second-stage feedback controllers) <br>
+(2) as system approaches max `V` acceleration must settle
+(3) acceleration is constant at peak velocity until the inverse of (1) and (2) occur until final settle
+
+S-curve / Jerk-reduced profiles are represented as: 
+
+$$x(t) = x_0 + v_0 + \frac{1}{2}at^2 + \frac{1}{6}jt^2$$
+$$v(t) = v_0 + at + \frac{1}{2}jt^2$$
+$$a(t) = a_0 + jt$$ 
+<br>
+
+
+<center><img width="500" src="./media/img8.PNG"></center>
+
+**Figure 1.5** S-Curve Profile
+
+### Following Generated Profiles
+The final profiles sent to wheels is procaessed first through a series of offset conversions that returns a requirement for each point P in the form `(position, velocity, acceleration) at time t`. This point data is fed into the feedback controller and translated to scaled motor input. 
+
+<!-- kalman filter? -->
+
+---
 
 # Final Notes
 In a single system the previous implementations can be implemented in the following way: <br>

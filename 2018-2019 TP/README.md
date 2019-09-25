@@ -1,4 +1,4 @@
-Motion Profiling, Tracking via Odometry Theory on Fixed-Differential Systems
+Motion Profiling, Tracking, and Pursuit via Odometry Theory on Differential Systems
 ====================================================================
 ## Application in Robotics 
 ---
@@ -22,13 +22,17 @@ Movement from: <img src="svgs/b0abba107ce2fbdfb33d6bdade88770c.gif?invert_in_dar
 Odometry telemetry: <img src="svgs/9117cefc58ccce8de8d98cc3ed3e81db.gif?invert_in_darkmode" align=middle width=84.9428217pt height=24.65753399999998pt/> (absolute at time <img src="svgs/4f4f4e395762a3af4575de74c019ebb5.gif?invert_in_darkmode" align=middle width=5.936097749999991pt height=20.221802699999984pt/>)
 
 ### Modeling Motion
-<p align="center"><img src="svgs/68ff04b336caad98348dff366d388624.gif?invert_in_darkmode" align=middle width=120.51887264999999pt height=33.62942055pt/></p> 
+(1) Change in average radius, in terms of inner and outer radius, is used to calculate change in center of 4 wheel system<br>
+
+<p align="center"><img src="svgs/68ff04b336caad98348dff366d388624.gif?invert_in_darkmode" align=middle width=120.51887264999999pt height=33.62942055pt/></p>  
 
 <br>
 
 <p align="center"><img src="svgs/ca8b8db165bd910a0b255999546ccc25.gif?invert_in_darkmode" align=middle width=221.51480339999998pt height=49.315569599999996pt/></p>
 
 <br>
+(2) Change in theta moving direction as a function of change in inner radius, represents clear advantage over gyroscopic sensors in taking absolute theta<br>
+
 
 <p align="center"><img src="svgs/aa1c9e9f33b14a857f833028a96df7f6.gif?invert_in_darkmode" align=middle width=133.77235905pt height=34.7253258pt/></p> 
 
@@ -37,6 +41,8 @@ Odometry telemetry: <img src="svgs/9117cefc58ccce8de8d98cc3ed3e81db.gif?invert_i
 <p align="center"><img src="svgs/9f925880645d55342c7ecf25991112dc.gif?invert_in_darkmode" align=middle width=222.88463339999998pt height=69.0417981pt/></p>
 
 <img src="./media/img2.png" width="300"> <img src="./media/img3.png" width="384">
+
+These values can be used to create a vector representing absolute position difference (delta x, delta y, delta theta) between last state (assuming non-steady state)
 
 <p align="center"><img src="svgs/1af53c69bdd55402a7c86eab81b0bb2e.gif?invert_in_darkmode" align=middle width=171.30320129999998pt height=16.438356pt/></p> <br>
 
@@ -240,15 +246,67 @@ Point `P` separated by a `lookahead distance` from the current position. This po
 ### 
 
 
---- 
-## Advanced Techniques in Pursuit 
+<!-- ---  -->
+<!-- ## Advanced Techniques in Pursuit  -->
 <!-- clothoids
 https://journals.sagepub.com/doi/full/10.5772/61391 -->
-...
+<!-- ... -->
 
 ---
 ## Motion Profiling
-<!-- Motion profiling is similar to path pursuit, however  -->
+Motion profiling is similar to the path generation of pursuit algorithms, in that a series of points are given as input, and a smoothed, curved path is computed as output. However, profiling involves returning a path with parameters of acceleration and deceleration passed directly into motion functions. The steps to the this generation are as follows:<br> 
+(1) Generating smoothed curve using techniques as defined in path pursuit <br>
+(2) Calculting position through odometry functions <br>
+(3) Generating acceleration along the curve <br>
+
+### Curve and Path Generation
+Smoothed curves are generated through the fucntional input to cubic bezier curves. Linear interpolation is a common method to determine a common pivot between two points. All adjacent points are interpolated until none remain <br>
+(1) 1D linear interpolation <br>
+
+<p align="center"><img src="svgs/151aa3393aa0743c29b35a137f9719bd.gif?invert_in_darkmode" align=middle width=245.81355645pt height=16.438356pt/></p> <br>
+
+(2) 2D linear interpolation given two points P1, P2<br>
+
+<p align="center"><img src="svgs/314b40797f433682dfda9e2215cfec79.gif?invert_in_darkmode" align=middle width=367.27787414999995pt height=17.8831554pt/></p>
+
+<br>
+
+<center><img width="300" src="./media/img7.PNG"></center>
+
+**Figure 1.4** Guided cubic Bezier curve between two points
+
+Bezier curves require a combination of interpolation at two end points, and approximation of the inner control points. For larger sets of points, a single curve can not accurately represent a smooth path because of derivative scaling. However, a solution involves splines through `quintic Hermite splines` which alot for multi-segmented curves. At joint points in the spline, a tanget rather than a control point is specified which reliable smoothes those points and maintains first derivative which cubic Beziers are unable to provide. 
+
+### Velocity and Acceleration Profiles
+Given a standard trapezoidal velocity profile, the points given non-standard acceleration are near the start- and end-points. Using two-step PID loops on acceleration, a jerk-proof profile can be achieved which minimizes the third-derivative of position and further smoothes motion. <br>
+Trapezoidal profiles can be represented as simple kinematic equations:<br>
+
+<p align="center"><img src="svgs/d631dd36cb0af6dffca8ee3b4a99e3f0.gif?invert_in_darkmode" align=middle width=161.60679975pt height=32.990165999999995pt/></p>
+<p align="center"><img src="svgs/2e178cb8b27831b4b1ae09bff76a8630.gif?invert_in_darkmode" align=middle width=99.25597275pt height=16.438356pt/></p>
+
+> Jerk is defined as transitional changes in acceleration, that produce vibrational forces and jolted acceleration. Jerk-reducing profiles are difficult to tune as their deceleration stages must follow the limitations of hardware without significantly increasing settling time or accuracy at slow speeds. Jerk profiles include several more stages than simple trapezoidal profiles: <br>
+(1) linearly increasing accelearation to reach maximum acceleratoin (often guided by second-stage feedback controllers) <br>
+(2) as system approaches max `V` acceleration must settle
+(3) acceleration is constant at peak velocity until the inverse of (1) and (2) occur until final settle
+
+S-curve / Jerk-reduced profiles are represented as: 
+
+<p align="center"><img src="svgs/38bedef0628f7b8509ce41c60b9e1b22.gif?invert_in_darkmode" align=middle width=208.9472682pt height=32.990165999999995pt/></p>
+<p align="center"><img src="svgs/7a56fa444da47714f3deec9687219e8f.gif?invert_in_darkmode" align=middle width=151.71062444999998pt height=32.990165999999995pt/></p>
+<p align="center"><img src="svgs/e38e1bc1a250e8daaac073bf19b8a72a.gif?invert_in_darkmode" align=middle width=99.12963554999999pt height=16.438356pt/></p> 
+<br>
+
+
+<center><img width="500" src="./media/img8.PNG"></center>
+
+**Figure 1.5** S-Curve Profile
+
+### Following Generated Profiles
+The final profiles sent to wheels is procaessed first through a series of offset conversions that returns a requirement for each point P in the form `(position, velocity, acceleration) at time t`. This point data is fed into the feedback controller and translated to scaled motor input. 
+
+<!-- kalman filter? -->
+
+---
 
 # Final Notes
 In a single system the previous implementations can be implemented in the following way: <br>
