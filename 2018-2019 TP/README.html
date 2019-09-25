@@ -1,0 +1,306 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/highlight.min.js">
+<link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0/dist/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+<link rel="stylesheet" href="https://gitcdn.xyz/repo/goessner/mdmath/master/css/texmath.css">
+<link rel="stylesheet" href="https://gitcdn.xyz/repo/goessner/mdmath/master/css/vscode-texmath.css">
+
+</head><body class="markdown-body">
+<h1 id="motion-profiling-tracking-and-pursuit-via-odometry-theory-on-differential-systems-3" data-line="0" class="code-line">Motion Profiling, Tracking, and Pursuit via Odometry Theory on Differential Systems</h1>
+<h2 id="application-in-robotics-3" data-line="2" class="code-line">Application in Robotics</h2>
+<hr>
+<h2 id="jake-r-johnson-3" data-line="5" class="code-line">Jake R. Johnson</h2>
+<h2 id="abstract-3" data-line="8" class="code-line">Abstract</h2>
+<p data-line="9" class="code-line">This paper defines not only control theory for 4 wheel fixed-differential drivebases in VEX/FRC, but in any general application. Anywhere precise drivebase sensors are located, odometric measurements (absolute), velocity, and acceleration can be determined and used to construct movement profiles. Vision tracking and LIDAR are rigorous alternatives to Odometry, however they require more extensive tuning and difficult integration with motion profiles. Documented here is are most applicable and innovative processes for achieving desired movement in any system.</p>
+<p data-line="11" class="code-line">Many of these implementations were over the course of program development in team 6627A, during my time as head programmer and captain.</p>
+<hr>
+<h2 id="odometry-3" data-line="14" class="code-line">Odometry</h2>
+<p data-line="15" class="code-line">Odometry theory is more generally defined as high-level position tracking</p>
+<blockquote data-line="16" class="code-line">
+<p data-line="16" class="code-line">Basic implementation, relative to start pos. (0,0)</p>
+<ul>
+<li data-line="17" class="code-line">Field-relative rather than bot-relative, reducing accumulated errors. To increase precision, it is best to minimize precise stops and merge movements together (discussed later as <code>pure pursuit control</code>) and follow paths</li>
+</ul>
+</blockquote>
+<p data-line="19" class="code-line">Model is defined as: <br>
+Movement from: <img src="svgs/b0abba107ce2fbdfb33d6bdade88770c.gif?invert_in_darkmode" align=middle width=145.92830504999998pt height=27.94539330000001pt/> <br>
+Odometry telemetry: <img src="svgs/9117cefc58ccce8de8d98cc3ed3e81db.gif?invert_in_darkmode" align=middle width=84.9428217pt height=24.65753399999998pt/> (absolute at time <img src="svgs/4f4f4e395762a3af4575de74c019ebb5.gif?invert_in_darkmode" align=middle width=5.936097749999991pt height=20.221802699999984pt/>)</p>
+<h3 id="modeling-motion-3" data-line="23" class="code-line">Modeling Motion</h3>
+<p data-line="24" class="code-line">(1) Change in average radius, in terms of inner and outer radius, is used to calculate change in center of 4 wheel system<br></p>
+<p align="center"><img src="svgs/68ff04b336caad98348dff366d388624.gif?invert_in_darkmode" align=middle width=120.51887264999999pt height=33.62942055pt/></p>  
+<br>
+<p align="center"><img src="svgs/ca8b8db165bd910a0b255999546ccc25.gif?invert_in_darkmode" align=middle width=221.51480339999998pt height=49.315569599999996pt/></p>
+<br>
+(2) Change in theta moving direction as a function of change in inner radius, represents clear advantage over gyroscopic sensors in taking absolute theta<br>
+<p align="center"><img src="svgs/aa1c9e9f33b14a857f833028a96df7f6.gif?invert_in_darkmode" align=middle width=133.77235905pt height=34.7253258pt/></p> 
+<br>
+<p align="center"><img src="svgs/9f925880645d55342c7ecf25991112dc.gif?invert_in_darkmode" align=middle width=222.88463339999998pt height=69.0417981pt/></p>
+<p data-line="42" class="code-line"><img src="./media/img2.png" width="300"> <img src="./media/img3.png" width="384"></p>
+<p data-line="44" class="code-line">These values can be used to create a vector representing absolute position difference (delta x, delta y, delta theta) between last state (assuming non-steady state)</p>
+<p align="center"><img src="svgs/1af53c69bdd55402a7c86eab81b0bb2e.gif?invert_in_darkmode" align=middle width=171.30320129999998pt height=16.438356pt/></p> <br>
+<p align="center"><img src="svgs/c4ba56e240ec4d771f9777823e98808b.gif?invert_in_darkmode" align=middle width=143.4706779pt height=16.438356pt/></p> <br>
+<br>
+<p align="center"><img src="svgs/8bdd5bc05c4b563d0287f3668d10c30e.gif?invert_in_darkmode" align=middle width=171.00566834999998pt height=16.438356pt/></p> <br>
+<p align="center"><img src="svgs/c4ba56e240ec4d771f9777823e98808b.gif?invert_in_darkmode" align=middle width=143.4706779pt height=16.438356pt/></p>
+<br>
+<p align="center"><img src="svgs/440e767aa26710959ed21ef3ece2f4e2.gif?invert_in_darkmode" align=middle width=408.2217282pt height=59.1786591pt/></p>
+<p align="center"><img src="svgs/e13556822bb81c69fa2d9c2473794f17.gif?invert_in_darkmode" align=middle width=153.5206827pt height=16.438356pt/></p>
+<hr>
+<h2 id="interactive-feedback-pid-loops-3" data-line="64" class="code-line">Interactive Feedback PID Loops</h2>
+<p data-line="65" class="code-line">Interactivity depends on derivative constant <img src="svgs/c4dd4df1478960c5f0d78f517ad773e5.gif?invert_in_darkmode" align=middle width=20.804288999999986pt height=22.465723500000017pt/> as well as the dependence between proportional, integral and derivative modes. Parallel (non-interactive) controllers, are mostly unused. PID controllers are given by the alg.:</p>
+<p align="center"><img src="svgs/acd9a664591bf03c3e7c0178c1f8c1df.gif?invert_in_darkmode" align=middle width=294.93900314999996pt height=41.004999749999996pt/></p> 
+<br>
+<p align="center"><img src="svgs/6bb343272fe5c4d583f87758cdd926b7.gif?invert_in_darkmode" align=middle width=225.0457011pt height=118.35736770000001pt/></p>
+<h3 id="pidf-pid-under-a-closed-loop-feedback-control-uses-basic-concept-of-setpoint-error-and-target-to-generate-clamped-output-applied-to-system-to-reach-target-3" data-line="72" class="code-line"><strong>PIDF</strong>: PID under a closed loop feedback control. Uses basic concept of setpoint, error, and target to generate clamped output, applied to system to reach target.</h3>
+<ul>
+<li data-line="73" class="code-line">Error <code>e</code> multipled by proportional constant <code>K_p</code>, rendering output proportional to error</li>
+<li data-line="74" class="code-line">Error is integrated over period <code>Δt</code>, then multipled by constant <code>K_i</code>. Renders the output on accumulation of past errors</li>
+<li data-line="75" class="code-line"><img src="svgs/9290c8cfe86c39362512451d3a56f5a0.gif?invert_in_darkmode" align=middle width=34.72612439999999pt height=24.65753399999998pt/> of error <code>e</code> (calculated as <code>prevError - error</code>) normalized over update frequency (e.g. <code>Δdt = 10hz</code>) then multiplied by derivative constant <code>K_d</code>. Renders output on basis of error rate of change</li>
+<li data-line="76" class="code-line">Finally, feed-forward determines relative &quot;push force&quot; to reach setpoint. Calculated by multiplying setpoint by constant <code>K_f</code>. Used less in PI/PID loops, more in motion-profiling velocity loops to determine initial output</li>
+</ul>
+<h2 id="integral-windup-3" data-line="79" class="code-line">Integral Windup</h2>
+<p data-line="80" class="code-line">Situation in PID loop where a large change in setpoint offests large rise (windup) in integral term <code>i</code></p>
+<ul>
+<li data-line="81" class="code-line">Rather than post-processing integral output, windup regulates output in real time</li>
+</ul>
+<p data-line="83" class="code-line"><img src="/d:/Documents/School%20Archive/Robotics_Github/6627A---VEX/2018-2019%20TP/media/img1.png" alt="" class="loading" id="image-hash-20a6c4013c0c176d2edb8b793a787f7d4c7c49033f485d134636a72c480ab873">
+<strong>Figure 1.0</strong> Comparison of anti-windup strategies and setpointing</p>
+<h4 id="clamping-3" data-line="86" class="code-line">Clamping</h4>
+<p data-line="87" class="code-line">Also known as conditional integration, uses technique to clamp range of integral output from accumulating in wrong direction during output saturation. <br>
+<strong>process saturation</strong>: situation in which PI controller becomes non-linear and unbounded</p>
+<ul>
+<li data-line="89" class="code-line">Avoided through <code>(1) integral anti-windup (2) gain scheduling (3) setpoint weighting</code></li>
+<li data-line="90" class="code-line"><em>Integral anti-windup is best used to prevent oscillations in robot movements and consistency over autonomous routines</em></li>
+</ul>
+<blockquote data-line="92" class="code-line">
+<p data-line="92" class="code-line">Trivial unwind calculations for small changes in error, using clamping</p>
+</blockquote>
+<pre><code data-line="93" class="code-line language-cpp"><div><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> unwind 0.001 <span class="hljs-comment">// 0.001 -&gt; 0.005</span></span>
+<span class="hljs-keyword">if</span>((error &gt; <span class="hljs-number">0.0</span> &amp;&amp; errTot &lt; <span class="hljs-number">0.0</span>) || (error &lt; <span class="hljs-number">0.0</span> &amp;&amp; errTot &gt; <span class="hljs-number">0.0</span>) || <span class="hljs-built_in">fabs</span>(error) &lt; <span class="hljs-number">0.001</span>){
+	  	<span class="hljs-keyword">if</span>((<span class="hljs-built_in">fabs</span>(error) - unwind) &gt; <span class="hljs-number">-0.001</span>) errTot = <span class="hljs-number">0.0</span>;
+    }
+<span class="hljs-keyword">if</span>(<span class="hljs-built_in">fabs</span>(unwind) &lt; <span class="hljs-number">0.001</span> &amp;&amp; <span class="hljs-built_in">fabs</span>(error) &lt; <span class="hljs-number">0.001</span>) errTot = <span class="hljs-number">0</span>;
+</div></code></pre>
+<h4 id="back-calculation-3" data-line="101" class="code-line">Back-Calculation</h4>
+<p data-line="102" class="code-line">Using feedback <code>difference |u-v|</code> as input for integral. Back-calculating integral to constrain process output before feeding into integral. According to <code>Fig. 1.0</code>, back-calculation typically results in underaccumulation and drop-off</p>
+<hr>
+<h2 id="tuning-3" data-line="106" class="code-line">Tuning</h2>
+<p data-line="107" class="code-line">Tuning of constants and sensors is crucial to long-term accuracy and oscillation-reductions<br>
+The general strategy for non-feedback controllers involves:</p>
+<ul>
+<li data-line="109" class="code-line">Setting <code>I</code> and <code>D</code> to zero, <code>P</code> to a small (to be increased) value</li>
+<li data-line="110" class="code-line">Increase <code>P</code> until oscillations are reduced</li>
+<li data-line="111" class="code-line">Increase <code>D</code> until oscillations are nearly minimized</li>
+<li data-line="112" class="code-line">If steady-state (<code>S-S</code>) error (setpoint never reached) observed, decrease <code>P</code> / increase <code>D</code> and add <code>I</code></li>
+</ul>
+<p data-line="114" class="code-line">For feedback controllers:</p>
+<ul>
+<li data-line="115" class="code-line">In a velocity control loop, set P=I=D=0 initially, then increase feed-forward term until a desired velocity is reached</li>
+<li data-line="116" class="code-line">Follow non-feedback steps for target, overshooting, undershooting, oscillations ...</li>
+<li data-line="117" class="code-line">Increase D slowly to smooth out response (force under-dampening)</li>
+<li data-line="118" class="code-line">Use integral gain for constant, noticable difference from setpoint
+<ul>
+<li data-line="119" class="code-line">Often not used: can cause destabilization</li>
+</ul>
+</li>
+</ul>
+<blockquote data-line="121" class="code-line">
+<p data-line="121" class="code-line"><code>Most systems, particularly subsystems of systems, do not need I or D depending on the movement and relationship between target and current state</code></p>
+</blockquote>
+<blockquote data-line="123" class="code-line">
+<h3 id="behaviorial-effects-of-increasing-ksubpsub-ksubisub-ksubdsub-on-general-equation-of-interactive-pid-3" data-line="123" class="code-line">Behaviorial effects of <strong>increasing</strong> K<sub>p</sub>, K<sub>i</sub>, K<sub>d</sub>, on general equation of interactive PID</h3>
+</blockquote>
+<p align="center"><img src="svgs/9d619e79f11f2d061a3213f909ac606f.gif?invert_in_darkmode" align=middle width=335.8670469pt height=39.452455349999994pt/></p><br>
+<span style="color:gray">*Effect on U(s) behavior*</span> 
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Response</th>
+<th style="text-align:center">Rise Time</th>
+<th style="text-align:center">Overshoot</th>
+<th style="text-align:center">Settling Time</th>
+<th style="text-align:center">S-S Error</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">K<sub>p</sub></td>
+<td style="text-align:center">decrease</td>
+<td style="text-align:center">increase</td>
+<td style="text-align:center">*NC</td>
+<td style="text-align:center">decrease</td>
+</tr>
+<tr>
+<td style="text-align:center">K<sub>i</sub></td>
+<td style="text-align:center">decrease</td>
+<td style="text-align:center">increase</td>
+<td style="text-align:center">increase</td>
+<td style="text-align:center">eliminate</td>
+</tr>
+<tr>
+<td style="text-align:center">K<sub>d</sub></td>
+<td style="text-align:center">*NC</td>
+<td style="text-align:center">decrease</td>
+<td style="text-align:center">decrease</td>
+<td style="text-align:center">*NC</td>
+</tr>
+</tbody>
+</table>
+<p data-line="132" class="code-line"><strong>NC</strong>: Negligable change</p>
+<center><img width="450" src="./media/tuning.gif"></center>
+<hr>
+<h2 id="pure-pursuit-3" data-line="138" class="code-line">Pure Pursuit</h2>
+<p data-line="139" class="code-line">Pursuit comes in two different forms: adaptive and pure pursuit. &quot;Pure&quot; refers to pursuit directed purely on the basis of lookahead. However, &quot;adaptive&quot; pursuit modifies the look-ahead point over larger distances e.g. proportionally scaling lookahead with tracking error<br></p>
+<blockquote data-line="140" class="code-line">
+<p data-line="140" class="code-line">Debately the best method of autonomous control (competitive scenarios) beacuse of overall reliability, accuracy, and abililty to alter paths on the fly</p>
+</blockquote>
+<ul>
+<li data-line="141" class="code-line">Pure Pursuit formed from P controller using heading as setpoint and current heading as input. The goal point is derived from a fixed lookahead distance.
+<ul>
+<li data-line="142" class="code-line"><code>proportional gain</code> normalized by fixed lookahead distance <code>L</code>. <em>The curvature of movement comes from PI on heading rather than distance</em> : <img src="./media/eq1.gif?invert_in_darkmode"> determines the average curvature <code>C</code> on the path</li>
+<li data-line="143" class="code-line">A limiter is used to clamp (limit) curvature at high-speeds to prevent unwanted deviation from the path. This takes on the effect of cutting curve lines if implemented incorrectly. One method of limitation is regulating the angular velocity ω on sharp curves | often a threshold is placed on the entire path because of inability to track ω at high speeds
+<ul>
+<li data-line="144" class="code-line">
+<img src="./media/eq2.gif?invert_in_darkmode">
+</li>
+</ul>
+</li>
+<li data-line="145" class="code-line">Errors caused by too short or too long of <code>L</code> result in overall instability | solved with feedforward controllers (PIDFs)<br></li>
+</ul>
+</li>
+</ul>
+<blockquote data-line="147" class="code-line">
+<p data-line="147" class="code-line"><strong>Warning</strong>: Increasing lookahead distance on unsmooth curves will cause corner-cutting</p>
+</blockquote>
+<ul>
+<li data-line="148" class="code-line">Smoother paths are preferred for the reason of more accurate prediction -&gt; optimal path-finding prediction</li>
+</ul>
+<center><img width="375" src="./media/img5.png"></center> 
+<p data-line="152" class="code-line"><strong>Figure 1.1</strong> Pure pursuit, no adaptivity</p>
+<ul>
+<li data-line="154" class="code-line">Adaptive pure pursuit computes a running vector of the point on the path closest to the current vehicle position.
+<ul>
+<li data-line="155" class="code-line">Using the <code>monotone arc length assumption</code>, efficiency can be increased by not having to search the entire length of the path for a lookahead, but rather using a local heading</li>
+<li data-line="156" class="code-line">Lookahead distance is adaptive / proportional to current tracking error</li>
+</ul>
+</li>
+</ul>
+<center><img width="375" src="./media/img4.PNG"></center>
+<p data-line="160" class="code-line"><strong>Figure 1.2</strong> Adaptive Lookahead, advanced off-path correction</p>
+<h3 id="path-following-3" data-line="162" class="code-line">Path Following</h3>
+<ol>
+<li data-line="163" class="code-line">Determine closest point</li>
+<li data-line="164" class="code-line">Determine lookahead point</li>
+<li data-line="165" class="code-line">Calculate (current) curvature, with target as lookahead point</li>
+<li data-line="166" class="code-line">Calculate &amp; feed into controller: individual wheel velocities (vel. PID)</li>
+</ol>
+<h3 id="point-injection-3" data-line="170" class="code-line">Point Injection</h3>
+<p data-line="171" class="code-line">The spacing of points along a path (predetermined) can be placed with minimal padding to increase the accuracy of velocity setpoints. Smoothing is best achieved with an increased quantity of points. Injection algorithms determine the spacing between points and pre-calculate the points along a pre-determined segment</p>
+<pre><code data-line="173" class="code-line language-cpp"><div>padding = <span class="hljs-comment">// padding between points</span>
+v_gen_points = <span class="hljs-comment">// generated points</span>
+<span class="hljs-keyword">for</span> segment in path:
+   <span class="hljs-built_in">vector</span> = endpt - startpt
+   points_in_range = <span class="hljs-built_in">ceil</span>(magnitude(<span class="hljs-built_in">vector</span>) / padding)
+   <span class="hljs-built_in">vector</span> = normalize(<span class="hljs-built_in">vector</span>) * padding
+   rep(i, <span class="hljs-number">0</span>, points_in_range):
+      v_gen_points.append(startpt + <span class="hljs-built_in">vector</span>*i)
+</div></code></pre>
+<h3 id="smoothing-3" data-line="184" class="code-line">Smoothing</h3>
+<p data-line="185" class="code-line">Smoothing can be achieved through several methods. Most common is through an optimization of points by returning a set of points that create a smooth trajectory. <br>
+<strong>The following algorithm uses gradient descent with a low tolerance:</strong> <br></p>
+<p align="center"><img src="svgs/44db4483891f4353404b2fffac602336.gif?invert_in_darkmode" align=middle width=144.5793822pt height=16.438356pt/></p> (1)
+<center>Gradient using coordinates from un-smoothed trajectory</center> <br>
+<p align="center"><img src="svgs/cff38cf230d636154e13fcf1f9fef39a.gif?invert_in_darkmode" align=middle width=218.145939pt height=16.438356pt/></p> (2)
+<center>Gradient with respect to neighboring, smoothed trajectory coordinates</center>
+<!-- <center><img src="svgs/cff38cf230d636154e13fcf1f9fef39a.gif?invert_in_darkmode" align=middle width=218.145939pt height=16.438356pt/></p> </center> (2) -->
+<br>
+<p align="center"><img src="svgs/2cba1ef8b323afd1e214c5dd574f834f.gif?invert_in_darkmode" align=middle width=333.81921704999996pt height=49.315569599999996pt/></p>
+<pre><code data-line="199" class="code-line language-python"><div><span class="hljs-string">""" path: set of path coords.
+    weight_data: weight to update data (alpha)
+    weight_smooth: weight to smooth coordinates (beta)
+    tolerance: iteration delta """</span>
+newP = deepcopy(path) <span class="hljs-comment"># smoothing each element in path</span>
+delta = tolerance  <span class="hljs-comment">#0.00001</span>
+
+<span class="hljs-keyword">while</span> delta &gt;= tolerance:
+    delta = <span class="hljs-number">0.0</span>
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(<span class="hljs-number">1</span>, len(newP) - <span class="hljs-number">1</span>):
+        <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> range(len(path[<span class="hljs-number">0</span>])):
+
+            x_i = path[i][j]
+            y_i, y_p, y_n = newP[i][j], newP[i - <span class="hljs-number">1</span>][j], newP[i + <span class="hljs-number">1</span>][j]
+
+            y_i_saved = y_i
+            y_i += weight_data * (x_i-y_i) + weight_smooth * (y_n+y_p - (<span class="hljs-number">2</span> * y_i))
+            newP[i][j] = y_i
+
+            delta += abs(y_i - y_i_saved)
+<span class="hljs-keyword">return</span> newP
+</div></code></pre>
+<p data-line="223" class="code-line"><strong>Alternatives e.g. 5<sup>th</sup>-degree splines work for this approximation :</strong></p>
+<center><img width="250" src="./media/imgSpline5.PNG"></center>
+<h3 id="closest-point-3" data-line="227" class="code-line">Closest Point</h3>
+<p data-line="228" class="code-line"><code>Trivial</code> distance calculation, start at lowest index such that following closest points are sequential</p>
+<h3 id="lookahead-point-3" data-line="230" class="code-line">Lookahead Point</h3>
+<p data-line="231" class="code-line">Point <code>P</code> separated by a <code>lookahead distance</code> from the current position. This point is determined by taking a circle with radius <code>lookout distance</code> and computing the intersection of the path and the circle <code>(line segment collision detection on circles)</code>.</p>
+<p align="center"><img src="svgs/0c6cb1b5821721b71d1b044c7ed5c1e0.gif?invert_in_darkmode" align=middle width=103.04318805pt height=16.1187015pt/></p>
+<br>
+<p align="center"><img src="svgs/05c7c7860ce576ce1b2cf15cbc523d45.gif?invert_in_darkmode" align=middle width=374.67543629999994pt height=69.0417981pt/></p>
+<br>
+<center><img width="250" src="./media/img6.png"></center>
+<p data-line="243" class="code-line"><strong>Figure 1.3</strong> Red circle defines the lookahead point <code>lookahead distance</code> from the center of movement</p>
+<h3 id="3" data-line="245" class="code-line"></h3>
+<!-- ---  -->
+<!-- ## Advanced Techniques in Pursuit  -->
+<!-- clothoids
+https://journals.sagepub.com/doi/full/10.5772/61391 -->
+<!-- ... -->
+<hr>
+<h2 id="motion-profiling-3" data-line="255" class="code-line">Motion Profiling</h2>
+<p data-line="256" class="code-line">Motion profiling is similar to the path generation of pursuit algorithms, in that a series of points are given as input, and a smoothed, curved path is computed as output. However, profiling involves returning a path with parameters of acceleration and deceleration passed directly into motion functions. The steps to the this generation are as follows:<br>
+(1) Generating smoothed curve using techniques as defined in path pursuit <br>
+(2) Calculting position through odometry functions <br>
+(3) Generating acceleration along the curve <br></p>
+<h3 id="curve-and-path-generation-3" data-line="261" class="code-line">Curve and Path Generation</h3>
+<p data-line="262" class="code-line">Smoothed curves are generated through the fucntional input to cubic bezier curves. Linear interpolation is a common method to determine a common pivot between two points. All adjacent points are interpolated until none remain <br>
+(1) 1D linear interpolation <br></p>
+<p align="center"><img src="svgs/151aa3393aa0743c29b35a137f9719bd.gif?invert_in_darkmode" align=middle width=245.81355645pt height=16.438356pt/></p> <br>
+<p data-line="267" class="code-line">(2) 2D linear interpolation given two points P1, P2<br></p>
+<p align="center"><img src="svgs/314b40797f433682dfda9e2215cfec79.gif?invert_in_darkmode" align=middle width=367.27787414999995pt height=17.8831554pt/></p>
+<br>
+<center><img width="300" src="./media/img7.PNG"></center>
+<p data-line="275" class="code-line"><strong>Figure 1.4</strong> Guided cubic Bezier curve between two points</p>
+<p data-line="277" class="code-line">Bezier curves require a combination of interpolation at two end points, and approximation of the inner control points. For larger sets of points, a single curve can not accurately represent a smooth path because of derivative scaling. However, a solution involves splines through <code>quintic Hermite splines</code> which alot for multi-segmented curves. At joint points in the spline, a tanget rather than a control point is specified which reliable smoothes those points and maintains first derivative which cubic Beziers are unable to provide.</p>
+<h3 id="velocity-and-acceleration-profiles-3" data-line="279" class="code-line">Velocity and Acceleration Profiles</h3>
+<p data-line="280" class="code-line">Given a standard trapezoidal velocity profile, the points given non-standard acceleration are near the start- and end-points. Using two-step PID loops on acceleration, a jerk-proof profile can be achieved which minimizes the third-derivative of position and further smoothes motion. <br>
+Trapezoidal profiles can be represented as simple kinematic equations:<br></p>
+<p align="center"><img src="svgs/d631dd36cb0af6dffca8ee3b4a99e3f0.gif?invert_in_darkmode" align=middle width=161.60679975pt height=32.990165999999995pt/></p>
+<p align="center"><img src="svgs/2e178cb8b27831b4b1ae09bff76a8630.gif?invert_in_darkmode" align=middle width=99.25597275pt height=16.438356pt/></p>
+<blockquote data-line="286" class="code-line">
+<p data-line="286" class="code-line">Jerk is defined as transitional changes in acceleration, that produce vibrational forces and jolted acceleration. Jerk-reducing profiles are difficult to tune as their deceleration stages must follow the limitations of hardware without significantly increasing settling time or accuracy at slow speeds. Jerk profiles include several more stages than simple trapezoidal profiles: <br>
+(1) linearly increasing accelearation to reach maximum acceleratoin (often guided by second-stage feedback controllers) <br>
+(2) as system approaches max <code>V</code> acceleration must settle
+(3) acceleration is constant at peak velocity until the inverse of (1) and (2) occur until final settle</p>
+</blockquote>
+<p data-line="291" class="code-line">S-curve / Jerk-reduced profiles are represented as:</p>
+<p align="center"><img src="svgs/38bedef0628f7b8509ce41c60b9e1b22.gif?invert_in_darkmode" align=middle width=208.9472682pt height=32.990165999999995pt/></p>
+<p align="center"><img src="svgs/7a56fa444da47714f3deec9687219e8f.gif?invert_in_darkmode" align=middle width=151.71062444999998pt height=32.990165999999995pt/></p>
+<p align="center"><img src="svgs/e38e1bc1a250e8daaac073bf19b8a72a.gif?invert_in_darkmode" align=middle width=99.12963554999999pt height=16.438356pt/></p> 
+<br>
+<center><img width="500" src="./media/img8.PNG"></center>
+<p data-line="301" class="code-line"><strong>Figure 1.5</strong> S-Curve Profile</p>
+<h3 id="following-generated-profiles-3" data-line="303" class="code-line">Following Generated Profiles</h3>
+<p data-line="304" class="code-line">The final profiles sent to wheels is procaessed first through a series of offset conversions that returns a requirement for each point P in the form <code>(position, velocity, acceleration) at time t</code>. This point data is fed into the feedback controller and translated to scaled motor input.</p>
+<!-- kalman filter? -->
+<hr>
+<h1 id="final-notes-3" data-line="310" class="code-line">Final Notes</h1>
+<p data-line="311" class="code-line">In a single system the previous implementations can be implemented in the following way: <br></p>
+<blockquote data-line="312" class="code-line">
+<p data-line="312" class="code-line">(1) Pre-calculated paths and smoothing constants <br>
+(2) Path data is read, and curvature and velocity setpoints are computed <br>
+(3) Using odometry, the lookahead point is calculated and absolute positioning is maintained <br>
+(4) Curvature, closest point, lookahead, wheel velocities, and telemetry are all tracked in real-time <br></p>
+</blockquote>
+<p data-line="317" class="code-line">PID, State-spaces, feedforward and motion profiling, and pursuit methods all define a broader spectrum of control theory that is applicable to more than purely robotic applications (e.g. self-driving cars, AI-based intelligence). Modern multi-in-multi-out control systems are founded on these concepts and continue to be developed.</p>
+
+</body></html>
