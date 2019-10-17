@@ -3,7 +3,7 @@ VEX <span style="color:Gray">2015-2019</span>
 Jake R. Johnson
 ---------------
 
-### **VEX ROBOTICS \|** Captain, Co-Founder (w/ Blaise Collins), Programmer (Team 6627)
+### **VEX ROBOTICS \|** Captain, Co-Founder, Head Programmer (Team 6627)
 
 ---
 
