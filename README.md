@@ -9,7 +9,7 @@ Jake R. Johnson
 
 ## **2018-2019 Season -- Turning Point**
 
-Record: **66-13** \| **Rank 4 World**
+Record: **66-13** \| **Rank 5 World**
 
 Raised \$15000 for Season and World Tour
 
